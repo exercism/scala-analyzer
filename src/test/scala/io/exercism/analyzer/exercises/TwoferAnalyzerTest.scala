@@ -52,6 +52,12 @@ class TwoferAnalyzerTest extends FunSuite with Matchers {
       Comment("scala.two-fer.no_default_param"))))
   }
 
+  test("without return type") {
+    val source = getSource("./src/test/resources/io/exercism/analyzer/exercises/two-fer/exampleWithoutReturnType.scala")
+    val analysis = twoferAnalyzer.analyze(source)
+    analysis should be (Analysis("disapprove_with_comment", List(Comment("scala.two-fer.no_return_type"))))
+  }
+
   private def getSource(srcpath: String): Source = {
     val path = java.nio.file.Paths.get(srcpath)
     val bytes = java.nio.file.Files.readAllBytes(path)

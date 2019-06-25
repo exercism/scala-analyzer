@@ -7,7 +7,8 @@ import scala.meta._
 class TwoferAnalyzer extends ExerciseAnalyzer {
 
   object TwoferHasToken {
-    val RequiredHasTokens = List(HasClassTwofer, HasFunctionTwofer, HasDefaultParam, HasInterpolate)
+    val RequiredHasTokens = List(HasClassTwofer, HasFunctionTwofer, HasDefaultParam,
+      HasReturnType, HasInterpolate)
 
     case object HasClassTwofer extends HasToken {
       override def comment = Some(Comment("scala.general.proper_class_and_method_names"))
@@ -17,6 +18,9 @@ class TwoferAnalyzer extends ExerciseAnalyzer {
     }
     case object HasDefaultParam extends HasToken {
       override def comment = Some(Comment("scala.two-fer.no_default_param"))
+    }
+    case object HasReturnType extends HasToken {
+      override def comment = Some(Comment("scala.two-fer.no_return_type"))
     }
     case object HasInterpolate extends HasToken {
       override def comment = Some(Comment("scala.two-fer.use_string_interpolate"))
@@ -44,6 +48,7 @@ class TwoferAnalyzer extends ExerciseAnalyzer {
         case Defn.Object(_, Term.Name("Twofer"), _) => HasClassTwofer
         case Defn.Def(_, Term.Name("twofer"), _, _, _, _) => HasFunctionTwofer
         case Term.Param(_, _, _, Some(Lit.String("you"))) => HasDefaultParam
+        case t if isReturnType(t) => HasReturnType
         case Term.Interpolate(_) => HasInterpolate
         case Term.If(_) => HasIfStatement
         case Term.Match(_) => HasMatchStatement
@@ -55,6 +60,16 @@ class TwoferAnalyzer extends ExerciseAnalyzer {
 
     val acc = mapRequiredHasTokens(hasTokens)
     mapOtherHasTokens(hasTokens, acc)
+  }
+
+  private def isReturnType(tree: Tree): Boolean = {
+    tree match {
+      case Type.Name("String") => tree.parent match {
+        case Some(Defn.Def(_, Term.Name("twofer"), _, _, _, _)) => true
+        case _ => false
+      }
+      case _ => false
+    }
   }
 
   private def mapRequiredHasTokens(hasTokens: List[HasToken]): Analysis = {
