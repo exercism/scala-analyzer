@@ -21,7 +21,7 @@ object Analyzer  {
       case _ => Analysis("refer_to_mentor", List(Comment("scala.general.exercise_not_found")))
     }
 
-    AnalysisWriter.write(analysis)
+    AnalysisWriter.write(analysis, exerciseDir)
   }
 
   private def analyzeTwofer(exerciseDir: String): Analysis = {
@@ -37,7 +37,7 @@ object Analyzer  {
   }
 
   private def getOptimalSolutions(slug: String): List[Either[Analysis, Source]] = {
-    val solutions = new File(".", slug).listFiles {file => "scala" == getFileExtension(file) }
+    val solutions = new File("./optimal-solutions", slug).listFiles {file => "scala" == getFileExtension(file) }
     solutions.map(solution => ExerciseParser.parse(solution.getAbsolutePath)).toList
   }
 

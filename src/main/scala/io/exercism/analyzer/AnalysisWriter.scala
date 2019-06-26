@@ -5,11 +5,12 @@ import io.circe.generic.auto._
 import io.circe.syntax._
 
 object AnalysisWriter {
-  def write(analysis: Analysis) {
+  def write(analysis: Analysis,
+            exerciseDir: String) {
     val json = analysis.asJson
 
     try {
-      val writer = new PrintWriter(new File("./analysis.json"))
+      val writer = new PrintWriter(new File(exerciseDir, "analysis.json"))
       writer.write(json.toString())
       writer.close()
     } catch {

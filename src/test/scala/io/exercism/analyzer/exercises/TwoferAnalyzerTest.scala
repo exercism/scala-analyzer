@@ -78,6 +78,21 @@ class TwoferAnalyzerTest extends FunSuite with Matchers {
     analysis should be (Analysis("disapprove_with_comment", List(Comment("scala.two-fer.unnecessary_return"))))
   }
 
+  test("with multiple functions") {
+    val source = getSource("./src/test/resources/io/exercism/analyzer/exercises/two-fer/exampleWithMultFunctions.scala")
+    val analysis = twoferAnalyzer.analyze(source, optimalSolutions)
+    analysis should be (Analysis("disapprove_with_comment", List(Comment("scala.two-fer.unnecessary_function"),
+      Comment("scala.two-fer.no_default_param"))))
+  }
+
+  test("with empty default param") {
+    val source = getSource("./src/test/resources/io/exercism/analyzer/exercises/two-fer/exampleWithEmptyDefaultParam.scala")
+    val analysis = twoferAnalyzer.analyze(source, optimalSolutions)
+    analysis should be (Analysis("disapprove_with_comment", List(Comment("scala.two-fer.empty_default_param"),
+      Comment("scala.two-fer.no_conditionals"),
+      Comment("scala.two-fer.no_default_param"))))
+  }
+
   private val optimalSolutions: List[Source] = {
     val solutions = new File("./optimal-solutions/two-fer").listFiles
     solutions.map(file => file.getAbsolutePath).map { getSource } toList
