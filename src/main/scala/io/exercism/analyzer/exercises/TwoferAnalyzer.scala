@@ -35,6 +35,9 @@ class TwoferAnalyzer extends ExerciseAnalyzer {
     case object HasForStatement extends HasTokenFail {
       override def comment = Some(Comment("scala.two-fer.no_loops"))
     }
+    case object HasReturnStatement extends HasTokenFail {
+      override def comment = Some(Comment("scala.two-fer.unnecessary_return"))
+    }
     case object HasHardCodedTestCase extends HasTokenFail {
       override def comment = Some(Comment("scala.general.hard_coded_test_cases"))
     }
@@ -42,24 +45,29 @@ class TwoferAnalyzer extends ExerciseAnalyzer {
 
   import TwoferHasToken._
 
-  override def analyze(source: Source): Analysis = {
-    val hasTokens = source
-      .collect {
-        case Defn.Object(_, Term.Name("Twofer"), _) => HasClassTwofer
-        case Defn.Def(_, Term.Name("twofer"), _, _, _, _) => HasFunctionTwofer
-        case Term.Param(_, _, _, Some(Lit.String("you"))) => HasDefaultParam
-        case t if isReturnType(t) => HasReturnType
-        case Term.Interpolate(_) => HasInterpolate
-        case Term.If(_) => HasIfStatement
-        case Term.Match(_) => HasMatchStatement
-        case Term.For(_) => HasForStatement
-        case Term.ForYield(_) => HasForStatement
-        case Lit.String("Alice") => HasHardCodedTestCase
-        case Lit.String("Bob") => HasHardCodedTestCase
-      }
+  override def analyze(source: Source, optimalSolutions: List[Source]): Analysis = {
+    if (matchesOptimal(source, optimalSolutions))
+      Analysis("approve_as_optimal", List())
+    else {
+      val hasTokens = source
+        .collect {
+          case Defn.Object(_, Term.Name("Twofer"), _) => HasClassTwofer
+          case Defn.Def(_, Term.Name("twofer"), _, _, _, _) => HasFunctionTwofer
+          case Term.Param(_, _, _, Some(Lit.String("you"))) => HasDefaultParam
+          case t if isReturnType(t) => HasReturnType
+          case Term.Interpolate(_) => HasInterpolate
+          case Term.If(_) => HasIfStatement
+          case Term.Match(_) => HasMatchStatement
+          case Term.For(_) => HasForStatement
+          case Term.ForYield(_) => HasForStatement
+          case Term.Return(_) => HasReturnStatement
+          case Lit.String("Alice") => HasHardCodedTestCase
+          case Lit.String("Bob") => HasHardCodedTestCase
+        }
 
-    val acc = mapRequiredHasTokens(hasTokens)
-    mapOtherHasTokens(hasTokens, acc)
+      val acc = mapRequiredHasTokens(hasTokens)
+      mapOtherHasTokens(hasTokens, acc)
+    }
   }
 
   private def isReturnType(tree: Tree): Boolean = {
@@ -76,7 +84,7 @@ class TwoferAnalyzer extends ExerciseAnalyzer {
     RequiredHasTokens
       .find(!hasTokens.contains(_))
       .map(hasToken => Analysis("disapprove_with_comment", addComment(hasToken.comment, List())))
-      .getOrElse(Analysis("approve_as_optimal", List()))
+      .getOrElse(Analysis("refer_to_mentor", List()))
   }
 
   private def mapOtherHasTokens(hasTokens: List[HasToken],
