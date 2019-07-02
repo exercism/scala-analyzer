@@ -15,7 +15,7 @@ object ExerciseParser {
       val input = Input.VirtualFile(path.toString, text)
       input.parse[Source] match {
         case Parsed.Success(src) => Right(src)
-        case _ => Left(Analysis("disapprove_with_comment", List(Comment("scala.general.failed_parse"))))
+        case _ => Left(Analysis("disapprove", List(Comment("scala.general.failed_parse"))))
       }
     } catch {
       case _: InvalidPathException => Left(Analysis("refer_to_mentor", List(Comment("scala.general.file_not_found"))))

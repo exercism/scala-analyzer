@@ -53,7 +53,7 @@ class TwoferAnalyzer extends ExerciseAnalyzer {
 
   override def analyze(source: Source, optimalSolutions: List[Source]): Analysis = {
     if (matchesOptimal(source, optimalSolutions))
-      Analysis("approve_as_optimal", List())
+      Analysis("approve", List())
     else {
       val hasTokens = source
         .collect {
@@ -91,7 +91,7 @@ class TwoferAnalyzer extends ExerciseAnalyzer {
   private def mapRequiredHasTokens(hasTokens: List[HasToken]): Analysis = {
     RequiredHasTokens
       .find(!hasTokens.contains(_))
-      .map(hasToken => Analysis("disapprove_with_comment", addComment(hasToken.comment, List())))
+      .map(hasToken => Analysis("disapprove", addComment(hasToken.comment, List())))
       .getOrElse(Analysis("refer_to_mentor", List()))
   }
 
@@ -99,7 +99,7 @@ class TwoferAnalyzer extends ExerciseAnalyzer {
                                 analysis: Analysis): Analysis = {
     hasTokens
       .filter(hasToken => hasToken.requirement != TokenRequirement.Require)
-      .foldRight(analysis)((hasToken, acc) => Analysis("disapprove_with_comment", addComment(hasToken.comment, acc.comments)))
+      .foldRight(analysis)((hasToken, acc) => Analysis("disapprove", addComment(hasToken.comment, acc.comments)))
   }
 
   private def addComment(comment: Option[Comment],

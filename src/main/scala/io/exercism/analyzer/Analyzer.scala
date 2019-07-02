@@ -29,12 +29,15 @@ object Analyzer  {
     if (optimalSolutions.exists(e => e.isLeft))
       return lefts(optimalSolutions).head
 
-    val filePath = new File(exerciseDir, "Twofer.scala").getAbsolutePath
-    ExerciseParser.parse(filePath) match {
+    val solutionPath = getPathToSolution(exerciseDir, "Twofer.scala")
+    ExerciseParser.parse(solutionPath) match {
       case Left(analysis) => analysis
       case Right(source) => new TwoferAnalyzer().analyze(source, rights(optimalSolutions))
     }
   }
+
+  private def getPathToSolution(exerciseDir: String, fileName: String) =
+    new File(new File(exerciseDir, "src/main/scala") ,fileName).getAbsolutePath
 
   private def getOptimalSolutions(slug: String): List[Either[Analysis, Source]] = {
     val solutions = new File("./optimal-solutions", slug).listFiles {file => "scala" == getFileExtension(file) }

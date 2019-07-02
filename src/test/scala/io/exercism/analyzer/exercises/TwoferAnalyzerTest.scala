@@ -14,81 +14,81 @@ class TwoferAnalyzerTest extends FunSuite with Matchers {
   test("optimal solution") {
     val source = getSource("./src/test/resources/io/exercism/analyzer/exercises/two-fer/example.scala")
     val analysis = twoferAnalyzer.analyze(source, optimalSolutions)
-    analysis should be (Analysis("approve_as_optimal", List()))
+    analysis should be (Analysis("approve", List()))
   }
 
   test("optimal solution with extra spaces") {
     val source = getSource("./src/test/resources/io/exercism/analyzer/exercises/two-fer/exampleWithWhiteSpace.scala")
     val analysis = twoferAnalyzer.analyze(source, optimalSolutions)
-    analysis should be (Analysis("approve_as_optimal", List()))
+    analysis should be (Analysis("approve", List()))
   }
 
   test("optimal solution with function braces") {
     val source = getSource("./src/test/resources/io/exercism/analyzer/exercises/two-fer/exampleWithFunctionBraces.scala")
     val analysis = twoferAnalyzer.analyze(source, optimalSolutions)
-    analysis should be (Analysis("approve_as_optimal", List()))
+    analysis should be (Analysis("approve", List()))
   }
 
   test("with alt interpolate statement") {
     val source = getSource("./src/test/resources/io/exercism/analyzer/exercises/two-fer/exampleWithAltInterpolate.scala")
     val analysis = twoferAnalyzer.analyze(source, optimalSolutions)
-    analysis should be (Analysis("approve_as_optimal", List()))
+    analysis should be (Analysis("approve", List()))
   }
 
   test("with if statement") {
     val source = getSource("./src/test/resources/io/exercism/analyzer/exercises/two-fer/exampleWithIf.scala")
     val analysis = twoferAnalyzer.analyze(source, optimalSolutions)
-    analysis should be (Analysis("disapprove_with_comment", List(Comment("scala.two-fer.no_conditionals"))))
+    analysis should be (Analysis("disapprove", List(Comment("scala.two-fer.no_conditionals"))))
   }
 
   test("with match statement") {
     val source = getSource("./src/test/resources/io/exercism/analyzer/exercises/two-fer/exampleWithMatch.scala")
     val analysis = twoferAnalyzer.analyze(source, optimalSolutions)
-    analysis should be (Analysis("disapprove_with_comment", List(Comment("scala.two-fer.no_conditionals"))))
+    analysis should be (Analysis("disapprove", List(Comment("scala.two-fer.no_conditionals"))))
   }
 
   test("without interpolate") {
     val source = getSource("./src/test/resources/io/exercism/analyzer/exercises/two-fer/exampleWithoutInterpolate.scala")
     val analysis = twoferAnalyzer.analyze(source, optimalSolutions)
-    analysis should be (Analysis("disapprove_with_comment", List(Comment("scala.two-fer.use_string_interpolate"))))
+    analysis should be (Analysis("disapprove", List(Comment("scala.two-fer.use_string_interpolate"))))
   }
 
   test("with hardcoded test case") {
     val source = getSource("./src/test/resources/io/exercism/analyzer/exercises/two-fer/exampleWithHardcodedTestCase.scala")
     val analysis = twoferAnalyzer.analyze(source, optimalSolutions)
-    analysis should be (Analysis("disapprove_with_comment", List(Comment("scala.general.hard_coded_test_cases"))))
+    analysis should be (Analysis("disapprove", List(Comment("scala.general.hard_coded_test_cases"))))
   }
 
   test("with multiple errors") {
     val source = getSource("./src/test/resources/io/exercism/analyzer/exercises/two-fer/exampleWithMultErrors.scala")
     val analysis = twoferAnalyzer.analyze(source, optimalSolutions)
-    analysis should be (Analysis("disapprove_with_comment", List(Comment("scala.two-fer.no_conditionals"),
+    analysis should be (Analysis("disapprove", List(Comment("scala.two-fer.no_conditionals"),
       Comment("scala.two-fer.no_default_param"))))
   }
 
   test("without return type") {
     val source = getSource("./src/test/resources/io/exercism/analyzer/exercises/two-fer/exampleWithoutReturnType.scala")
     val analysis = twoferAnalyzer.analyze(source, optimalSolutions)
-    analysis should be (Analysis("disapprove_with_comment", List(Comment("scala.two-fer.no_return_type"))))
+    analysis should be (Analysis("disapprove", List(Comment("scala.two-fer.no_return_type"))))
   }
 
   test("with return") {
     val source = getSource("./src/test/resources/io/exercism/analyzer/exercises/two-fer/exampleWithReturn.scala")
     val analysis = twoferAnalyzer.analyze(source, optimalSolutions)
-    analysis should be (Analysis("disapprove_with_comment", List(Comment("scala.two-fer.unnecessary_return"))))
+    analysis should be (Analysis("disapprove", List(Comment("scala.two-fer.unnecessary_return"))))
   }
 
   test("with multiple functions") {
     val source = getSource("./src/test/resources/io/exercism/analyzer/exercises/two-fer/exampleWithMultFunctions.scala")
     val analysis = twoferAnalyzer.analyze(source, optimalSolutions)
-    analysis should be (Analysis("disapprove_with_comment", List(Comment("scala.two-fer.unnecessary_function"),
+    analysis should be (Analysis("disapprove", List(Comment("scala.two-fer.unnecessary_function"),
       Comment("scala.two-fer.no_default_param"))))
   }
 
   test("with empty default param") {
     val source = getSource("./src/test/resources/io/exercism/analyzer/exercises/two-fer/exampleWithEmptyDefaultParam.scala")
     val analysis = twoferAnalyzer.analyze(source, optimalSolutions)
-    analysis should be (Analysis("disapprove_with_comment", List(Comment("scala.two-fer.empty_default_param"),
+    analysis should be (Analysis("disapprove", List(Comment("scala.two-fer.empty_default_param"),
       Comment("scala.two-fer.no_conditionals"),
       Comment("scala.two-fer.no_default_param"))))
   }
