@@ -5,25 +5,27 @@ import io.exercism.analyzer.{Analysis, Comment, ExerciseAnalyzer, HasToken, HasT
 import scala.meta._
 
 class TwoferAnalyzer extends ExerciseAnalyzer {
-
+// TODO: Add and println... ad params
   object TwoferHasToken {
     val RequiredHasTokens = List(HasClassTwofer, HasFunctionTwofer, HasDefaultParam,
       HasReturnType, HasInterpolate)
 
     case object HasClassTwofer extends HasToken {
-      override def comment = Some(Comment("scala.general.proper_class_and_method_names"))
+      override def comment = Some(Comment("scala.general.proper_object_name",
+        Map("objectName" -> "Twofer")))
     }
     case object HasFunctionTwofer extends HasToken  {
-      override def comment = Some(Comment("scala.general.proper_class_and_method_names"))
+      override def comment = Some(Comment("scala.general.proper_function_name",
+        Map("functionName" -> "twofer")))
     }
     case object HasDefaultParam extends HasToken {
       override def comment = Some(Comment("scala.two-fer.no_default_param"))
     }
     case object HasReturnType extends HasToken {
-      override def comment = Some(Comment("scala.two-fer.no_return_type"))
+      override def comment = Some(Comment("scala.general.no_return_type"))
     }
     case object HasInterpolate extends HasToken {
-      override def comment = Some(Comment("scala.two-fer.use_string_interpolate"))
+      override def comment = Some(Comment("scala.general.use_string_interpolate"))
     }
 
     case object HasIfStatement extends HasTokenFail {
@@ -36,16 +38,22 @@ class TwoferAnalyzer extends ExerciseAnalyzer {
       override def comment = Some(Comment("scala.two-fer.no_loops"))
     }
     case object HasReturnStatement extends HasTokenFail {
-      override def comment = Some(Comment("scala.two-fer.unnecessary_return"))
+      override def comment = Some(Comment("scala.general.unnecessary_return"))
     }
     case object HasHardCodedTestCase extends HasTokenFail {
       override def comment = Some(Comment("scala.general.hard_coded_test_cases"))
     }
     case object HasUnneededFunction extends HasTokenFail {
-      override def comment = Some(Comment("scala.two-fer.unnecessary_function"))
+      override def comment = Some(Comment("scala.general.unnecessary_function"))
     }
     case object HasEmptyDefaultParam extends HasTokenFail {
       override def comment = Some(Comment("scala.two-fer.empty_default_param"))
+    }
+    case object HasMainFunction extends HasTokenFail {
+      override def comment = Some(Comment("scala.general.has_main_function"))
+    }
+    case object HasConsoleWrite extends HasTokenFail {
+      override def comment = Some(Comment("scala.general.do_not_write_to_console"))
     }
   }
 
@@ -60,6 +68,7 @@ class TwoferAnalyzer extends ExerciseAnalyzer {
           case Defn.Object(_, Term.Name("Twofer"), _) => HasClassTwofer
           case Defn.Def(_, Term.Name("twofer"), _, pparams, _, _) =>
             if (!pparams.headOption.exists(_.nonEmpty)) HasUnneededFunction else HasFunctionTwofer
+          case Defn.Def(_, Term.Name("main"), _, _, _, _) => HasMainFunction
           case Term.Param(_, _, _, Some(Lit.String(""))) => HasEmptyDefaultParam
           case Term.Param(_, _, _, Some(Lit.String("you"))) => HasDefaultParam
           case t if isReturnType(t) => HasReturnType
@@ -69,6 +78,8 @@ class TwoferAnalyzer extends ExerciseAnalyzer {
           case Term.For(_) => HasForStatement
           case Term.ForYield(_) => HasForStatement
           case Term.Return(_) => HasReturnStatement
+          case Term.Name("println") => HasConsoleWrite
+          case Term.Name("print") => HasConsoleWrite
           case Lit.String("Alice") => HasHardCodedTestCase
           case Lit.String("Bob") => HasHardCodedTestCase
         }
@@ -106,7 +117,7 @@ class TwoferAnalyzer extends ExerciseAnalyzer {
                          comments: List[Comment]): List[Comment] = {
     comment match {
       case None => comments
-      case Some(c) => c +: comments
+      case Some(c) => (c +: comments).distinct
     }
   }
 }

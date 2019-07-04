@@ -1,5 +1,6 @@
 package io.exercism.analyzer
 
+import java.io.File
 import java.nio.file.InvalidPathException
 
 import scala.meta.Source
@@ -18,8 +19,12 @@ object ExerciseParser {
         case _ => Left(Analysis("disapprove", List(Comment("scala.general.failed_parse"))))
       }
     } catch {
-      case _: InvalidPathException => Left(Analysis("refer_to_mentor", List(Comment("scala.general.file_not_found"))))
+      case _: InvalidPathException =>
+        Left(Analysis("refer_to_mentor", List(Comment("scala.general.file_not_found",
+          Map("solutionFile" -> getExerciseFilename(filePath))))))
       case _ : Throwable => Left(Analysis("refer_to_mentor", List(Comment("scala.general.unexpected_exception"))))
     }
   }
+
+  private def getExerciseFilename(filePath: String) = new File(filePath).getName
 }

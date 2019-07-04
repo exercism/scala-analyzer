@@ -50,7 +50,7 @@ class TwoferAnalyzerTest extends FunSuite with Matchers {
   test("without interpolate") {
     val source = getSource("./src/test/resources/io/exercism/analyzer/exercises/two-fer/exampleWithoutInterpolate.scala")
     val analysis = twoferAnalyzer.analyze(source, optimalSolutions)
-    analysis should be (Analysis("disapprove", List(Comment("scala.two-fer.use_string_interpolate"))))
+    analysis should be (Analysis("disapprove", List(Comment("scala.general.use_string_interpolate"))))
   }
 
   test("with hardcoded test case") {
@@ -69,19 +69,19 @@ class TwoferAnalyzerTest extends FunSuite with Matchers {
   test("without return type") {
     val source = getSource("./src/test/resources/io/exercism/analyzer/exercises/two-fer/exampleWithoutReturnType.scala")
     val analysis = twoferAnalyzer.analyze(source, optimalSolutions)
-    analysis should be (Analysis("disapprove", List(Comment("scala.two-fer.no_return_type"))))
+    analysis should be (Analysis("disapprove", List(Comment("scala.general.no_return_type"))))
   }
 
   test("with return") {
     val source = getSource("./src/test/resources/io/exercism/analyzer/exercises/two-fer/exampleWithReturn.scala")
     val analysis = twoferAnalyzer.analyze(source, optimalSolutions)
-    analysis should be (Analysis("disapprove", List(Comment("scala.two-fer.unnecessary_return"))))
+    analysis should be (Analysis("disapprove", List(Comment("scala.general.unnecessary_return"))))
   }
 
   test("with multiple functions") {
     val source = getSource("./src/test/resources/io/exercism/analyzer/exercises/two-fer/exampleWithMultFunctions.scala")
     val analysis = twoferAnalyzer.analyze(source, optimalSolutions)
-    analysis should be (Analysis("disapprove", List(Comment("scala.two-fer.unnecessary_function"),
+    analysis should be (Analysis("disapprove", List(Comment("scala.general.unnecessary_function"),
       Comment("scala.two-fer.no_default_param"))))
   }
 
@@ -91,6 +91,42 @@ class TwoferAnalyzerTest extends FunSuite with Matchers {
     analysis should be (Analysis("disapprove", List(Comment("scala.two-fer.empty_default_param"),
       Comment("scala.two-fer.no_conditionals"),
       Comment("scala.two-fer.no_default_param"))))
+  }
+
+  test("with main function") {
+    val source = getSource("./src/test/resources/io/exercism/analyzer/exercises/two-fer/exampleWithMain.scala")
+    val analysis = twoferAnalyzer.analyze(source, optimalSolutions)
+    analysis should be (Analysis("disapprove", List(Comment("scala.general.has_main_function"))))
+  }
+
+  test("with println") {
+    val source = getSource("./src/test/resources/io/exercism/analyzer/exercises/two-fer/exampleWithPrintln.scala")
+    val analysis = twoferAnalyzer.analyze(source, optimalSolutions)
+    analysis should be (Analysis("disapprove", List(Comment("scala.general.do_not_write_to_console"))))
+  }
+
+  test("with print") {
+    val source = getSource("./src/test/resources/io/exercism/analyzer/exercises/two-fer/exampleWithPrint.scala")
+    val analysis = twoferAnalyzer.analyze(source, optimalSolutions)
+    analysis should be (Analysis("disapprove", List(Comment("scala.general.do_not_write_to_console"))))
+  }
+
+  test("with System.out.println") {
+    val source = getSource("./src/test/resources/io/exercism/analyzer/exercises/two-fer/exampleWithSystemOutPrintln.scala")
+    val analysis = twoferAnalyzer.analyze(source, optimalSolutions)
+    analysis should be (Analysis("disapprove", List(Comment("scala.general.do_not_write_to_console"))))
+  }
+
+  test("with invalid object name") {
+    val source = getSource("./src/test/resources/io/exercism/analyzer/exercises/two-fer/exampleWithIncorrectObjectName.scala")
+    val analysis = twoferAnalyzer.analyze(source, optimalSolutions)
+    analysis should be (Analysis("disapprove", List(Comment("scala.general.proper_object_name", Map("objectName" -> "Twofer")))))
+  }
+
+  test("with invalid function name") {
+    val source = getSource("./src/test/resources/io/exercism/analyzer/exercises/two-fer/exampleWithIncorrectFunctionName.scala")
+    val analysis = twoferAnalyzer.analyze(source, optimalSolutions)
+    analysis should be (Analysis("disapprove", List(Comment("scala.general.proper_function_name", Map("functionName" -> "twofer")))))
   }
 
   private val optimalSolutions: List[Source] = {
