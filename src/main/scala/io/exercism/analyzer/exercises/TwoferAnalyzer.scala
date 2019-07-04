@@ -5,7 +5,6 @@ import io.exercism.analyzer.{Analysis, Comment, ExerciseAnalyzer, HasToken, HasT
 import scala.meta._
 
 class TwoferAnalyzer extends ExerciseAnalyzer {
-// TODO: Add and println... ad params
   object TwoferHasToken {
     val RequiredHasTokens = List(HasClassTwofer, HasFunctionTwofer, HasDefaultParam,
       HasReturnType, HasInterpolate)
