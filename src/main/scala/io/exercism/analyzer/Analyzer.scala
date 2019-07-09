@@ -1,6 +1,6 @@
 package io.exercism.analyzer
 
-import java.io.{File, FileFilter}
+import java.io.File
 
 import io.exercism.analyzer.exercises.TwoferAnalyzer
 

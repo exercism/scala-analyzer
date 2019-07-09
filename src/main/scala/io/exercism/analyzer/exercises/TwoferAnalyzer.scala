@@ -1,6 +1,6 @@
 package io.exercism.analyzer.exercises
 
-import io.exercism.analyzer.{Analysis, Comment, ExerciseAnalyzer, HasToken, HasTokenFail, TokenRequirement}
+import io.exercism.analyzer.{Analysis, AnalysisStatuses, Comment, ExerciseAnalyzer, HasToken, HasTokenFail, TokenRequirement}
 
 import scala.meta._
 
@@ -60,7 +60,7 @@ class TwoferAnalyzer extends ExerciseAnalyzer {
 
   override def analyze(source: Source, optimalSolutions: List[Source]): Analysis = {
     if (matchesOptimal(source, optimalSolutions))
-      Analysis("approve", List())
+      Analysis(AnalysisStatuses.Approve)
     else {
       val hasTokens = source
         .collect {
@@ -101,15 +101,15 @@ class TwoferAnalyzer extends ExerciseAnalyzer {
   private def mapRequiredHasTokens(hasTokens: List[HasToken]): Analysis = {
     RequiredHasTokens
       .find(!hasTokens.contains(_))
-      .map(hasToken => Analysis("disapprove", addComment(hasToken.comment, List())))
-      .getOrElse(Analysis("refer_to_mentor", List()))
+      .map(hasToken => Analysis(AnalysisStatuses.Disapprove, addComment(hasToken.comment, List())))
+      .getOrElse(Analysis(AnalysisStatuses.ReferToMentor, List()))
   }
 
   private def mapOtherHasTokens(hasTokens: List[HasToken],
                                 analysis: Analysis): Analysis = {
     hasTokens
       .filter(hasToken => hasToken.requirement != TokenRequirement.Require)
-      .foldRight(analysis)((hasToken, acc) => Analysis("disapprove", addComment(hasToken.comment, acc.comments)))
+      .foldRight(analysis)((hasToken, acc) => Analysis(AnalysisStatuses.Disapprove, addComment(hasToken.comment, acc.comments)))
   }
 
   private def addComment(comment: Option[Comment],
