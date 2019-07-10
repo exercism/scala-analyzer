@@ -1,7 +1,7 @@
 package io.exercism.analyzer
 
 import java.io.File
-import java.nio.file.InvalidPathException
+import java.nio.file.{InvalidPathException, NoSuchFileException}
 
 import scala.meta.Source
 import scala.meta.inputs.Input
@@ -16,13 +16,13 @@ object ExerciseParser {
       val input = Input.VirtualFile(path.toString, text)
       input.parse[Source] match {
         case Parsed.Success(src) => Right(src)
-        case _ => Left(Analysis("disapprove", List(Comment("scala.general.failed_parse"))))
+        case _ => Left(Analysis(AnalysisStatuses.Disapprove, List(Comment("scala.general.failed_parse"))))
       }
     } catch {
-      case _: InvalidPathException =>
-        Left(Analysis("refer_to_mentor", List(Comment("scala.general.file_not_found",
+      case _ @ (_ : InvalidPathException | _ : NoSuchFileException)  =>
+        Left(Analysis(AnalysisStatuses.ReferToMentor, List(Comment("scala.general.file_not_found",
           Map("solutionFile" -> getExerciseFilename(filePath))))))
-      case _ : Throwable => Left(Analysis("refer_to_mentor", List(Comment("scala.general.unexpected_exception"))))
+      case e : Throwable => Left(Analysis(AnalysisStatuses.ReferToMentor, List(Comment("scala.general.unexpected_exception"))))
     }
   }
 
