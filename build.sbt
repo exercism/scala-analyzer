@@ -10,5 +10,8 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-core",
   "io.circe" %% "circe-generic"
 ).map(_ % circeVersion)
+libraryDependencies += "org.typelevel" %% "cats-effect" % "1.3.1"
 
-libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % "test"
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % "test"
+
+scalacOptions += "-Ypartial-unification"

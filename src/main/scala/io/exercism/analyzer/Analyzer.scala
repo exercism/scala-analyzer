@@ -2,6 +2,8 @@ package io.exercism.analyzer
 
 import java.io.File
 
+import cats.effect.SyncIO
+import cats.implicits._
 import io.exercism.analyzer.exercises.TwoferAnalyzer
 
 import scala.meta.Source
@@ -18,7 +20,7 @@ object Analyzer  {
 
     val analysis = slug match {
       case "two-fer" => analyzeTwofer(exerciseDir)
-      case _ => Analysis("refer_to_mentor", List(Comment("scala.general.exercise_not_found")))
+      case _ => Analysis(AnalysisStatuses.ReferToMentor, List(Comment("scala.general.exercise_not_found")))
     }
 
     AnalysisWriter.write(analysis, exerciseDir)
@@ -27,12 +29,21 @@ object Analyzer  {
   private def analyzeTwofer(exerciseDir: String): Analysis = {
     val optimalSolutions = getOptimalSolutions("two-fer")
     if (optimalSolutions.exists(e => e.isLeft))
-      return lefts(optimalSolutions).head
+      return getFirstAnalysis(optimalSolutions)
 
-    val solutionPath = getPathToSolution(exerciseDir, "Twofer.scala")
-    ExerciseParser.parse(solutionPath) match {
+    val optimalSolutionSrcs = getSources(optimalSolutions)
+
+    val filePath = new File(exerciseDir, "Twofer.scala").getAbsolutePath
+    analyze(filePath, optimalSolutionSrcs,
+      (source: Source) => new TwoferAnalyzer().analyze(source, optimalSolutionSrcs))
+  }
+
+  private def analyze(filePath: String,
+                      optimalSolutionSrcs: List[Source],
+                      analyzer: Source => Analysis): Analysis = {
+    ExerciseParser.parse(filePath) match {
       case Left(analysis) => analysis
-      case Right(source) => new TwoferAnalyzer().analyze(source, rights(optimalSolutions))
+      case Right(source) => SyncIO{analyzer.apply(source)}.unsafeRunSync()
     }
   }
 
@@ -44,11 +55,17 @@ object Analyzer  {
     solutions.map(solution => ExerciseParser.parse(solution.getAbsolutePath)).toList
   }
 
-  private def lefts(eithers: List[Either[Analysis, Source]]): List[Analysis] =
-    eithers.filter(e => e.isLeft).map { case Left(a) => a }
+  private def getFirstAnalysis(eithers: List[Either[Analysis, Source]]): Analysis =
+    eithers.find(e => e.isLeft) match {
+      case Some(Left(analysis: Analysis)) => analysis
+      case _ => Analysis(AnalysisStatuses.ReferToMentor, List(Comment("scala.general.unexpected_exception")))
+    }
 
-  private def rights(eithers: List[Either[Analysis, Source]]): List[Source] =
-    eithers.filter(e => e.isRight).map { case Right(a) => a }
+  private def getSources(eithers: List[Either[Analysis, Source]]): List[Source] =
+    eithers.sequence match {
+      case Left(_) => List()
+      case Right(l) => l
+    }
 
   private def getFileExtension(file: File): String = {
     val reg_ex = """.*\.(\w+)""".r
