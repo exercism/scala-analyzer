@@ -1,20 +1,18 @@
 package io.exercism.analyzer
 
 import java.io.{File, PrintWriter}
+
+import cats.effect.SyncIO
 import io.circe.generic.auto._
 import io.circe.syntax._
 
 object AnalysisWriter {
   def write(analysis: Analysis,
-            exerciseDir: String) {
+            exerciseDir: String): Unit = {
     val json = analysis.asJson
 
-    try {
-      val writer = new PrintWriter(new File(exerciseDir, "analysis.json"))
-      writer.write(json.toString())
-      writer.close()
-    } catch {
-      case _: Throwable => Console.err.println("Error writing analysis.json")
-    }
+    SyncIO(new PrintWriter(new File(exerciseDir, "analysis.json")))
+        .bracket{pw => SyncIO(pw.write(json.toString()))} {pw => SyncIO(pw.close())}
+    .unsafeRunSync()
   }
 }
