@@ -4,7 +4,8 @@ import java.io.File
 
 import cats.effect.SyncIO
 import cats.implicits._
-import io.exercism.analyzer.exercises.TwoferAnalyzer
+import io.exercism.analyzer.exercises.leap.LeapAnalyzer
+import io.exercism.analyzer.exercises.twofer.TwoferAnalyzer
 
 import scala.meta.Source
 
@@ -20,6 +21,7 @@ object Analyzer  {
 
     val analysis = slug match {
       case "two-fer" => analyzeTwofer(exerciseDir)
+      case "leap" => analyzeLeap(exerciseDir)
       case _ => Analysis(AnalysisStatuses.ReferToMentor, List(Comment("scala.general.exercise_not_found")))
     }
 
@@ -38,6 +40,14 @@ object Analyzer  {
       (source: Source) => new TwoferAnalyzer().analyze(source, optimalSolutionSrcs))
   }
 
+  private def analyzeLeap(exerciseDir: String): Analysis = {
+    val optimalSolutionSrcs = Nil
+
+    val filePath = new File(exerciseDir, "Leap.scala").getAbsolutePath
+    analyze(filePath, optimalSolutionSrcs,
+      (source: Source) => new LeapAnalyzer().analyze(source, optimalSolutionSrcs))
+  }
+
   private def analyze(filePath: String,
                       optimalSolutionSrcs: List[Source],
                       analyzer: Source => Analysis): Analysis = {
@@ -46,9 +56,6 @@ object Analyzer  {
       case Right(source) => SyncIO{analyzer.apply(source)}.unsafeRunSync()
     }
   }
-
-  private def getPathToSolution(exerciseDir: String, fileName: String) =
-    new File(new File(exerciseDir, "src/main/scala") ,fileName).getAbsolutePath
 
   private def getOptimalSolutions(slug: String): List[Either[Analysis, Source]] = {
     val solutions = new File("./optimal-solutions", slug).listFiles {file => "scala" == getFileExtension(file) }
