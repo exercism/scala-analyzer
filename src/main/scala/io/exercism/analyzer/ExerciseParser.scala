@@ -1,6 +1,5 @@
 package io.exercism.analyzer
 
-import java.io.File
 import java.nio.file.{InvalidPathException, NoSuchFileException}
 
 import cats.effect.SyncIO
@@ -30,7 +29,7 @@ object ExerciseParser {
           case Left(t) => t match {
             case _@(_: InvalidPathException | _: NoSuchFileException) =>
               Left(Analysis(AnalysisStatuses.ReferToMentor, List(Comment("scala.general.file_not_found",
-                Map("solutionFile" -> getExerciseFilename(filePath))))))
+                Map("solutionFile" -> filePath)))))
             case _: Throwable => Left(Analysis(AnalysisStatuses.ReferToMentor, List(Comment("scala.general.unexpected_exception"))))
           }
         }
@@ -38,6 +37,4 @@ object ExerciseParser {
 
     syncIo.unsafeRunSync()
   }
-
-  private def getExerciseFilename(filePath: String) = new File(filePath).getName
 }
