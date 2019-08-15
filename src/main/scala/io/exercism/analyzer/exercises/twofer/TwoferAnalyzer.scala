@@ -1,6 +1,6 @@
-package io.exercism.analyzer.exercises
+package io.exercism.analyzer.exercises.twofer
 
-import io.exercism.analyzer.{Analysis, AnalysisStatuses, Comment, ExerciseAnalyzer, HasToken, HasTokenFail, TokenRequirement}
+import io.exercism.analyzer._
 
 import scala.meta._
 

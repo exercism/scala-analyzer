@@ -1,4 +1,4 @@
-package io.exercism.analyzer.exercises
+package io.exercism.analyzer.exercises.twofer
 
 import java.io.File
 
