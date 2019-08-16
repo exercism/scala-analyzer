@@ -35,7 +35,7 @@ object Analyzer  {
 
     val optimalSolutionSrcs = getSources(optimalSolutions)
 
-    val filePath = new File(exerciseDir, "Twofer.scala").getAbsolutePath
+    val filePath = getPathToSolution(exerciseDir, "Twofer.scala")
     analyze(filePath, optimalSolutionSrcs,
       (source: Source) => new TwoferAnalyzer().analyze(source, optimalSolutionSrcs))
   }
@@ -43,10 +43,13 @@ object Analyzer  {
   private def analyzeLeap(exerciseDir: String): Analysis = {
     val optimalSolutionSrcs = Nil
 
-    val filePath = new File(exerciseDir, "Leap.scala").getAbsolutePath
+    val filePath = getPathToSolution(exerciseDir, "Leap.scala")
     analyze(filePath, optimalSolutionSrcs,
       (source: Source) => new LeapAnalyzer().analyze(source, optimalSolutionSrcs))
   }
+
+  private def getPathToSolution(exerciseDir: String, fileName: String): String =
+    new File(new File(exerciseDir, "src/main/scala"), fileName).getAbsolutePath
 
   private def analyze(filePath: String,
                       optimalSolutionSrcs: List[Source],
